@@ -19,7 +19,7 @@
     <div class="cell" id="8" onclick="makeMove(8)"></div>
     <div class="cell" id="9" onclick="makeMove(9)"></div>
   </div>
-  <h2 id="header">Stats</h2>
+  <h2 id="header">Turn: X</h2>
   <div class="info-box">
     <div class="element" id="gameCount">Games: 0</div>
     <div class="element" id="XWins">X wins: 0</div>
@@ -45,7 +45,7 @@
       margin: 0 auto;
       justify-content: center;
       align-items:center;
-      padding:165px; /*225px if info-box is at the bottom, 105 if info-box is at the top*/ 
+      padding:165px; /*165px if info-box is at the bottom, 105 if info-box is at the top*/ 
       padding-bottom: 30px;
     }
     .cell {
@@ -82,7 +82,8 @@
     }
   </style>
   <script>
-    let turn = 'X';
+    let firstTurn = 'X'
+    let turn = firstTurn;
     let gameCount=0;
     let XWinCount=0;
     let OWinCount=0;
@@ -103,6 +104,7 @@
         if(turn === 'X')turn = 'O';
         else if(turn === 'O')turn = 'X';
         else console.log('Error');
+        header.innerHTML = 'Turn: ' + turn;
       }
       else console.log('Position ' + pos + ' is already taken');
       
@@ -149,10 +151,13 @@
         document.getElementById((i+1).toString()).innerHTML = '';
       }
       document.getElementById('gameCount').innerHTML = ('Games: ' + (++gameCount).toString())
+      if(firstTurn === 'X')firstTurn = 'O';
+      else if (firstTurn === 'O')firstTurn = 'X';
+      turn=firstTurn;
       clearTimeout(timeoutID); // Clears timeout in case the function is executed again, before the previous timeout has expired.
       timeoutID = setTimeout(function() {
-        header.innerHTML = 'Stats';
-      }, 5000);
+        header.innerHTML = 'Turn: ' + turn;
+      }, 3000);
     }
   </script>
 </body>
