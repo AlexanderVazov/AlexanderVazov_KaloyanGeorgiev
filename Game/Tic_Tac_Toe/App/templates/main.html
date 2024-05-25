@@ -7,6 +7,7 @@
 </head>
 <body>
   <h1 id="title">Tic Tac Toe</h1>
+  
   <div class="board">
     <div class="cell" id="1" onclick="makeMove(1)"></div>
     <div class="cell" id="2" onclick="makeMove(2)"></div>
@@ -18,7 +19,13 @@
     <div class="cell" id="8" onclick="makeMove(8)"></div>
     <div class="cell" id="9" onclick="makeMove(9)"></div>
   </div>
-  <h2 id="header"></h2>
+  <h2 id="header">Stats</h2>
+  <div class="info-box">
+    <div class="element" id="gameCount">Games: 0</div>
+    <div class="element" id="XWins">X wins: 0</div>
+    <div class="element" id="OWins">O wins: 0</div>
+    <div class="element" id="ties">Ties: 0</div>
+  </div>
   <style>
     #title {
       text-align: center;
@@ -38,7 +45,7 @@
       margin: 0 auto;
       justify-content: center;
       align-items:center;
-      padding:225px;
+      padding:165px; /*225px if info-box is at the bottom, 105 if info-box is at the top*/ 
       padding-bottom: 30px;
     }
     .cell {
@@ -49,9 +56,26 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 2em;
+      font-size: 35px;
       cursor: pointer;
       color: #ccc;
+    }
+    .info-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 10px;
+      color: #ccc;
+      margin: 0 auto;
+      border: 3px solid #ccc;
+      border-width: 1px;
+      max-width: 300px;
+      font-size: 30px;
+    }
+    .info-box .element {
+      flex: 1;
+      margin-bottom: 5px; 
     }
     body {
         background-color:#262626;
@@ -59,7 +83,11 @@
   </style>
   <script>
     let turn = 'X';
-    let gameCounter=0;
+    let gameCount=0;
+    let XWinCount=0;
+    let OWinCount=0;
+    let tieCount=0;
+    let timeoutID;
     let gameState = new Array(9).fill('');
     const header = document.getElementById('header');
     const winningCombinations = [
@@ -81,12 +109,16 @@
       if(winCheck()==='X'||winCheck()==='O'){
         console.log(winCheck() + ' has won the game.');
         header.innerHTML = (winCheck() + ' has won the game.');
+        if(winCheck()==='X')document.getElementById('XWins').innerHTML = ('X wins: ' + (++XWinCount).toString());
+        else if(winCheck()==='O')document.getElementById('OWins').innerHTML = ('O wins: ' + (++OWinCount).toString());
+        else console.log('Counter Error');
         newGame();
         return;
       }
       if(tieCheck()){
         console.log('The game is a tie.');
         header.innerHTML = ('The game is a tie.');
+        document.getElementById('ties').innerHTML = ('Ties: ' + (++tieCount).toString());
         newGame();
         return;
       }
@@ -116,9 +148,10 @@
         gameState[i]='';
         document.getElementById((i+1).toString()).innerHTML = '';
       }
-      gameCounter++;
-      setTimeout(function() {
-        header.innerHTML = '';
+      document.getElementById('gameCount').innerHTML = ('Games: ' + (++gameCount).toString())
+      clearTimeout(timeoutID); // Clears timeout in case the function is executed again, before the previous timeout has expired.
+      timeoutID = setTimeout(function() {
+        header.innerHTML = 'Stats';
       }, 5000);
     }
   </script>
