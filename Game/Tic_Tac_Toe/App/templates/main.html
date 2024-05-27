@@ -103,6 +103,7 @@
     let OWinCount=0;
     let tieCount=0;
     let timeoutID;
+    let gameEnded = false;
     let gameState = new Array(9).fill('');
     const header = document.getElementById('header');
     const winningCombinations = [
@@ -127,33 +128,31 @@
       else if(turn === 'O')turn = 'X';
       else console.log('Error');
     }
-    function makeMove(pos,caller){
-      if(caller==='AI'){ //control print for debugging, probably useless now
-        console.log(pos);
-        for(let element of gameState){
-          console.log(element);
-        }
-      }
-      if (gameState[pos-1]===''){
+    function makeMove(pos, caller) {
+      if (!gameEnded && gameState[pos - 1] === '') {
+        gameState[pos - 1] = turn;
         document.getElementById(pos.toString()).innerHTML = turn;
-        gameState[pos-1] = turn;
         console.log('Position ' + pos + ' has been set to ' + turn + ' by the ' + caller);
-        switchTurn();
-        header.innerHTML = 'Turn: ' + turn;
-        if(endCheck(gameState)!==null){
+
+        if (endCheck(gameState) !== null) {
           endGame(gameState);
           clearTimeout(timeoutID); // Clears timeout in case the function is executed again before the previous timeout has expired.
-          timeoutID = setTimeout(function(){
-            newGame();
-          }, 3000);
+          timeoutID = setTimeout(newGame, 3000);
+        } else {
+          switchTurn();
+          header.innerHTML = 'Turn: ' + turn;
+
+          if (gameMode === 'PvAI' && turn === 'O') {
+            makeMove(bestMove(gameState) + 1, 'AI');
+          }
         }
-        if(gameMode==='PvAI'&&turn==='O'){
-          makeMove(bestMove(gameState) + 1, 'AI');
-        }
+      } else if (!gameEnded) {
+        console.log('Position ' + pos + ' is already taken');
       }
-      else console.log('Position ' + pos + ' is already taken');
     }
+
     function newGame(){
+      gameEnded = false;
         for(let i=0;i<9;i++){
           gameState[i]='';
           document.getElementById((i+1).toString()).innerHTML = '';
@@ -179,37 +178,41 @@
     function endGame(board = gameState){
       let message = undefined;
       let result=endCheck(board);
-      if(result==='X'||result==='O'){
-        message = result + ' has won the game.'
-        if(result==='X')document.getElementById('XWins').innerHTML = ('X wins: ' + (++XWinCount).toString());
-        else if(result==='O')document.getElementById('OWins').innerHTML = ('O wins: ' + (++OWinCount).toString());
-        else console.log('Counter Error');
-      }
-      else if(result==='tie'){
-        message = 'The game has resulted in a tie.';
-        document.getElementById('ties').innerHTML = ('Ties: ' + (++tieCount).toString());
-      }
-      if(message!==undefined){
-        document.getElementById('gameCount').innerHTML = ('Games: ' + (++gameCount).toString())
-        console.log(message);
-        header.innerHTML = (message);
-      }
+      if(result===null)return;
+      else {
+        gameEnded = true;
+        if(result==='X'||result==='O'){
+          message = result + ' has won the game.'
+          if(result==='X')document.getElementById('XWins').innerHTML = ('X wins: ' + (++XWinCount).toString());
+          else if(result==='O')document.getElementById('OWins').innerHTML = ('O wins: ' + (++OWinCount).toString());
+          else console.log('Counter Error');
+        }
+        else if(result==='tie'){
+          message = 'The game has resulted in a tie.';
+          document.getElementById('ties').innerHTML = ('Ties: ' + (++tieCount).toString());
+        }
+        if(message!==undefined){
+          document.getElementById('gameCount').innerHTML = ('Games: ' + (++gameCount).toString())
+          console.log(message);
+          header.innerHTML = (message);
+        }
+      } 
     }
     let scores = {
       'X': 1,
       'tie': 0,
       'O': -1
     }
-    function bestMove(){
-      let bestScore = -Infinity;
+    function bestMove(gameState){
+      let bestScore = Infinity;
       let move = null;
       for(let i=0;i<gameState.length;i++)
       {
         if(gameState[i]===''){
           gameState[i]=turn;
-          let score = minimax(gameState, 0, true);
+          let score = minimax(gameState, 0, false);
           gameState[i]='';
-          if(score>bestScore) {
+          if(score<bestScore) {
             bestScore = score;
             move = i;
           }
