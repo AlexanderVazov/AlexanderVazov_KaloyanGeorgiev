@@ -8,8 +8,8 @@
 <body>
   <h1 id="title">Tic Tac Toe</h1>
   <div id="gamemode-selector">
-    <a href="/"><button class="button" id="PvP" onclick="selectGameMode('PvP')">Local PvP</button></a>
-    <a href="/"><button class="button" id="PvAI" onclick="selectGameMode('PvAI')">PvAI</button></a>
+    <button class="button" id="PvP" onclick="selectGameMode('PvP')">Local PvP</button>
+    <button class="button" id="PvAI" onclick="selectGameMode('PvAI')">PvAI</button>
     <a href="/online-pvp"><button class="button" id="OnlinePvP">Online PvP</button></a>
   </div>
   <div class="board">
@@ -182,7 +182,7 @@
           header.innerHTML = 'Turn: ' + turn;
 
           if (gameMode === 'PvAI' && turn === 'O') {
-            makeMove(bestMove(gameState) + 1, 'AI');
+            makeMove(bestMove(gameState), 'AI');
           }
         }
       } else if (!gameEnded) {
@@ -194,7 +194,7 @@
       gameEnded = false;
         for(let i=0;i<9;i++){
           gameState[i]='';
-          document.getElementById((i+1).toString()).innerHTML = '';
+          document.getElementById((i).toString()).innerHTML = '';
         }
         /* if(firstTurn === 'X')firstTurn = 'O';
         else if (firstTurn === 'O')firstTurn = 'X';

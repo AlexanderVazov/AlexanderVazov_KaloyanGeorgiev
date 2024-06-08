@@ -10,13 +10,13 @@
   <div id="gamemode-selector">
     <a href="/"><button class="button" id="PvP" onclick="selectGameMode('PvP')">Local PvP</button></a>
     <a href="/"><button class="button" id="PvAI" onclick="selectGameMode('PvAI')">PvAI</button></a>
-    <a href="/online-pvp"><button class="button" id="OnlinePvP">Online PvP</button></a>
+    <button class="button" id="OnlinePvP">Online PvP</button></a>
   </div>
   <div class="players">
     <p id="userContainer">You: <span id="user"></span></p>
     <p id="oppContainer">Opponent: <span id="opponent"></span></p>
   </div>
-  <p id="valueContainer">You are playing as: <span id="value"></span></p>
+  <p id="valueContainer">Playing as: <span id="value"></span></p>
   <br>
   <div>
     <p id="enterName">Enter your name: </p>
@@ -208,6 +208,20 @@
       document.getElementById(pos).innerText = player;
       currentPlayer = player === 'X' ? 'O' : 'X'; // Toggle current player
       document.getElementById('whosTurn').innerHTML = "Turn: " + currentPlayer;
+    });
+
+    document.qureySelectorAll(".cell").forEach(e=> {
+      e.addEventListener("click", function(){
+        let value = document.getElementById("value").innerText;
+        e.innerText = value;
+        socket.emit("playing", {value: value, id:e.id, name: name});
+      });
+    });
+
+    socket.on("playing", (e) => {
+      const foundObject = (e.allPlayers).find(obj => obj.p1.name == `${name}` || obj.p2.name == `${name}`);
+      foundObject.p1.name == `${name}` ? oppName = foundObject.p2.name : oppName = foundObject.p1.name;
+      foundObject.p1.name == `${name}` ? value = foundObject.p2.value : value = foundObject.p1.value;
     });
   </script>
 </body>
