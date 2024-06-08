@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+</head>
+<body>
+  <h1 id="title">Tic Tac Toe</h1>
+  <div id="gamemode-selector">
+    <a href="/"><button class="button" id="PvP" onclick="selectGameMode('PvP')">Local PvP</button></a>
+    <a href="/"><button class="button" id="PvAI" onclick="selectGameMode('PvAI')">PvAI</button></a>
+    <a href="/online-pvp"><button class="button" id="OnlinePvP">Online PvP</button></a>
+  </div>
+  <div class="players">
+    <p id="userContainer">You: <span id="user"></span></p>
+    <p id="oppContainer">Opponent: <span id="opponent"></span></p>
+  </div>
+  <p id="valueContainer">You are playing as: <span id="value"></span></p>
+  <br>
+  <div>
+    <p id="enterName">Enter your name: </p>
+    <input type="text" placeholder="Name" id="name" autocomplete="off">
+  </div>
+  <button id="find">Search for a player</button>
+  <img src="https://i.sstatic.net/kOnzy.gif" id="loading" alt="Searching...">
+  <div class="board" id="board">
+    <div class="cell" id="0"></div>
+    <div class="cell" id="1"></div>
+    <div class="cell" id="2"></div>
+    <div class="cell" id="3"></div>
+    <div class="cell" id="4"></div>
+    <div class="cell" id="5"></div>
+    <div class="cell" id="6"></div>
+    <div class="cell" id="7"></div>
+    <div class="cell" id="8"></div>
+  </div>
+  <h2 id="whosTurn">Turn: <span id="turn"></span></h2>
+  <div class="info-box" id="info-box">
+    <div class="element" id="gameCount">Games: 0</div>
+    <div class="element" id="XWins">X wins: 0</div>
+    <div class="element" id="OWins">O wins: 0</div>
+    <div class="element" id="ties">Ties: 0</div>
+  </div>
+  <style>
+    body {
+        background-color: #262626;
+        color: #ccc;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+    h1, p {
+        margin: 20px 0;
+    }
+    input[type="text"] {
+        padding: 10px;
+        margin: 10px 0;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #1f1f1f;
+        color: #ccc;
+        font-size: 16px;
+    }
+    button {
+        padding: 10px 20px;
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        background-color: #1f1f1f;
+        color: #ccc;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    button:hover {
+        background-color: #ccc;
+        color: #1f1f1f;
+    }
+    #title {
+      text-align: center;
+      color: #ccc;
+      font-size: 60px;
+    }
+    #header {
+      text-align: center;
+      color: #ccc;
+      font-size: 30px;
+    }
+    #gamemode-selector {
+      justify-content: center;
+      text-align: center;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    .button {
+      color: #ccc;
+      background-color: #1f1f1f;
+      font-size: 25px;
+      border-radius: 8px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .button:hover {
+        background-color: #ccc;
+        color: #1f1f1f;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 2px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      padding-top: 30px;
+      padding-bottom: 30px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #1f1f1f;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      cursor: pointer;
+      color: #ccc;
+    }
+    .info-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 10px;
+      color: #ccc;
+      margin: 0 auto;
+      border: 3px solid #ccc;
+      border-width: 1px;
+      max-width: 300px;
+      font-size: 30px;
+    }
+    .info-box .element {
+      flex: 1;
+      margin-bottom: 5px;
+    }
+  </style>
+  <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+
+    document.getElementById('loading').style.display = "none";
+    document.getElementById('board').style.display = "none";
+    document.getElementById('userContainer').style.display = "none";
+    document.getElementById('oppContainer').style.display = "none";
+    document.getElementById('valueContainer').style.display = "none";
+    document.getElementById('whosTurn').style.display = "none";
+    document.getElementById('info-box').style.display = "none";
+
+    let name;
+    let playerSymbol;
+    let currentPlayer = 'X'; // Starting player
+
+    document.getElementById('find').addEventListener("click", function () {
+      name = document.getElementById('name').value;
+
+      document.getElementById('user').innerHTML = name;
+
+      if (name === null || name === '') {
+        alert("Please enter a name!");
+      } else {
+        socket.emit("find", name);
+        document.getElementById('loading').style.display = 'block';
+      }
+    });
+
+    socket.on("playerFound", (data) => {
+      const opponent = data.opponent;
+      playerSymbol = data.player.p1value === 'X' ? 'X' : 'O';
+      document.getElementById('userContainer').style.display = "block";
+      document.getElementById('oppContainer').style.display = "block";
+      document.getElementById('valueContainer').style.display = "block";
+      document.getElementById('loading').style.display = "none";
+      document.getElementById('name').style.display = "none";
+      document.getElementById('find').style.display = "none";
+      document.getElementById('enterName').style.display = "none";
+      document.getElementById('board').style.display = "grid";
+      document.getElementById('whosTurn').style.display = "block";
+      document.getElementById('info-box').style.display = "block";
+      document.getElementById('whosTurn').innerHTML = "Turn: " + currentPlayer;
+      document.getElementById('opponent').innerText = opponent;
+      document.getElementById('value').innerText = playerSymbol;
+
+      // Add click event listeners to the cells
+      document.querySelectorAll('.cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+          if (cell.innerText === '' && currentPlayer === playerSymbol) {
+            const pos = cell.id;
+            socket.emit('makeMove', { pos, player: playerSymbol });
+          }
+        });
+      });
+    });
+
+    socket.on('moveMade', (data) => {
+      const { pos, player } = data;
+      document.getElementById(pos).innerText = player;
+      currentPlayer = player === 'X' ? 'O' : 'X'; // Toggle current player
+      document.getElementById('whosTurn').innerHTML = "Turn: " + currentPlayer;
+    });
+  </script>
+</body>
+</html>
