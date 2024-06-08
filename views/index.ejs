@@ -8,8 +8,8 @@
 <body>
   <h1 id="title">Tic Tac Toe</h1>
   <div id="gamemode-selector">
-    <a href="/"><button class="button" id="PvP" onclick="selectGameMode('PvP')">Local PvP</button></a>
-    <a href="/"><button class="button" id="PvAI" onclick="selectGameMode('PvAI')">PvAI</button></a>
+   <button class="button" id="PvP" onclick="selectGameMode('PvP')">Local PvP</button>
+   <button class="button" id="PvAI" onclick="selectGameMode('PvAI')">PvAI</button>
     <a href="/online-pvp"><button class="button" id="OnlinePvP">Online PvP</button></a>
   </div>
   <div class="board">
@@ -182,7 +182,7 @@
           header.innerHTML = 'Turn: ' + turn;
 
           if (gameMode === 'PvAI' && turn === 'O') {
-            makeMove(bestMove(gameState) + 1, 'AI');
+            makeMove(bestMove(gameState), 'AI');
           }
         }
       } else if (!gameEnded) {
@@ -194,7 +194,7 @@
       gameEnded = false;
         for(let i=0;i<9;i++){
           gameState[i]='';
-          document.getElementById((i+1).toString()).innerHTML = '';
+          document.getElementById((i).toString()).innerHTML = '';
         }
         /* if(firstTurn === 'X')firstTurn = 'O';
         else if (firstTurn === 'O')firstTurn = 'X';
@@ -238,59 +238,58 @@
       }
     }
     let scores = {
-      'X': 1,
+      'X': 0,
+      'O': 0,
       'tie': 0,
-      'O': -1
     }
-    function bestMove(gameState){
-      let bestScore = Infinity;
-      let move = null;
-      for(let i=0;i<gameState.length;i++)
-      {
-        if(gameState[i]===''){
-          gameState[i]='X';
-          let score = minimax(gameState, 0, false);
-          gameState[i]='';
-          if(score<bestScore) {
-            bestScore = score;
-            move = i;
-          }
-        }
-      }
-      return move;
-    }
-    function minimax(gameState, depth, isMaximizing){
-      let copyOfGameState = Array.from(gameState);
+    function minimax(gameState, depth, isMaximizing) {
+  let result = endCheck(gameState);
+  if (result !== null) {
+    console.log(scores[result] - depth , "calculated");
+    return scores[result] - depth; // Adjust score by depth to prefer faster wins and slower losses
+  }
 
-      let result = endCheck(copyOfGameState);
-      if(result!==null){
-        return scores[result];
-      }
-      if(isMaximizing){
-        let bestScore = -Infinity;
-        for(let i=0;i<copyOfGameState.length;i++) {
-          if(copyOfGameState[i] === ''){
-            copyOfGameState[i] = 'X';
-            let score = minimax(copyOfGameState, depth + 1, false);
-            copyOfGameState[i] = '';
-            bestScore = Math.max(score, bestScore);
-          }
-        }
-        return bestScore;
-      }
-      else {
-        let bestScore = Infinity;
-        for(let i=0;i<copyOfGameState.length;i++) {
-          if(copyOfGameState[i] === ''){
-            copyOfGameState[i] = 'O';
-            let score = minimax(copyOfGameState, depth + 1, true);
-            copyOfGameState[i] = '';
-            bestScore = Math.min(score, bestScore);
-          }
-        }
-        return bestScore;
+  if (isMaximizing) {
+    let bestScore =  -Infinity;
+    for (let i = 0; i < gameState.length; i++) {
+      if (gameState[i] === '') {
+        gameState[i] = 'O'; // Maximizer is 'O'
+        let score = minimax(gameState, depth + 1, false);
+        gameState[i] = '';
+        bestScore = Math.max(score, bestScore);
       }
     }
+    return bestScore;
+  } else {
+    let bestScore = Infinity;
+    for (let i = 0; i < gameState.length; i++) {
+      if (gameState[i] === '') {
+        gameState[i] = 'X'; // Minimizer is 'O'
+        let score = minimax(gameState, depth + 1, true);
+        gameState[i] = '';
+        bestScore = Math.min(score, bestScore);
+      }
+    }
+    return bestScore;
+  }
+}
+
+function bestMove(gameState) {
+  let bestScore = -Infinity;
+  let move = -1;
+  for (let i = 0; i < gameState.length; i++) {
+    if (gameState[i] === '') {
+      gameState[i] = 'X'; // Assume 'X' is the AI
+      let score = minimax(gameState, 0, false);
+      gameState[i] = '';
+      if (score > bestScore) {
+        bestScore = score;
+        move = i;
+      }
+    }
+  }
+  return move;
+}
   </script>
 </body>
 </html>
