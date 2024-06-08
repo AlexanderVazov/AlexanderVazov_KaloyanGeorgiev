@@ -37,10 +37,10 @@
   </div>
   <h2 id="whosTurn">Turn: <span id="turn"></span></h2>
   <div class="info-box" id="info-box">
-    <div class="element" id="gameCount">Games: 0</div>
-    <div class="element" id="XWins">X wins: 0</div>
-    <div class="element" id="OWins">O wins: 0</div>
-    <div class="element" id="ties">Ties: 0</div>
+    <div class="element" id="gameCountCont">Games: <span id="gameCount" >0</span></div>
+    <div class="element" id="XWinsCont">X wins: <span id="XWins">0</span></div>
+    <div class="element" id="OWinsCont">O wins: <span id="OWins">0</span></div>
+    <div class="element" id="tiesCont">Ties: <span id="ties">0</span></div>
   </div>
   <style>
     body {
@@ -154,124 +154,115 @@
   <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
   <script>
     const socket = io();
-
-document.getElementById('loading').style.display = "none";
-document.getElementById('board').style.display = "none";
-document.getElementById('userContainer').style.display = "none";
-document.getElementById('oppContainer').style.display = "none";
-document.getElementById('valueContainer').style.display = "none";
-document.getElementById('whosTurn').style.display = "none";
-document.getElementById('info-box').style.display = "none";
-
-let name;
-let playerSymbol;
-let turn = 'X';
-
-document.getElementById('find').addEventListener("click", function () {
-  name = document.getElementById('name').value;
-  document.getElementById('user').innerHTML = name;
-
-  if (name === null || name === '') {
-    alert("Please enter a name!");
-  } else {
-    socket.emit("find", name);
-    document.getElementById('loading').style.display = 'block';
-  }
-});
-
-socket.on("playerFound", (data) => {
-  const opponent = data.opponent;
-  playerSymbol = data.player.value;
-  document.getElementById('userContainer').style.display = "block";
-  document.getElementById('oppContainer').style.display = "block";
-  document.getElementById('valueContainer').style.display = "block";
-  document.getElementById('loading').style.display = "none";
-  document.getElementById('name').style.display = "none";
-  document.getElementById('find').style.display = "none";
-  document.getElementById('enterName').style.display = "none";
-  document.getElementById('board').style.display = "grid";
-  document.getElementById('whosTurn').style.display = "block";
-  document.getElementById('info-box').style.display = "block";
-  document.getElementById('turn').innerText = 'X';
-  document.getElementById('opponent').innerText = opponent;
-  document.getElementById('value').innerText = playerSymbol;
-  
-  document.querySelectorAll(".cell").forEach(cell => {
-    cell.addEventListener('click', function () {
-      const id = this.id;
-      console.log(`Clicked cell with id "${id}" and playerSymbol "${playerSymbol}"`);
-      socket.emit("playing", { value: playerSymbol, id: id, name: name });
+    
+    document.getElementById('loading').style.display = "none";
+    document.getElementById('board').style.display = "none";
+    document.getElementById('userContainer').style.display = "none";
+    document.getElementById('oppContainer').style.display = "none";
+    document.getElementById('valueContainer').style.display = "none";
+    document.getElementById('whosTurn').style.display = "none";
+    document.getElementById('info-box').style.display = "none";
+    
+    let name;
+    let playerSymbol;
+    let turn = 'X';
+    let gameEnded = false;
+    
+    document.getElementById('find').addEventListener("click", function () {
+      name = document.getElementById('name').value;
+      document.getElementById('user').innerHTML = name;
+    
+      if (name === null || name === '') {
+        alert("Please enter a name!");
+      } else {
+        socket.emit("find", name);
+        document.getElementById('loading').style.display = 'block';
+      }
     });
-  });
-});
-
-socket.on("playing", (data) => {
-  console.log("Playing event data received:", data);
-  const foundObject = data.find(obj => obj.p1.name === name || obj.p2.name === name);
-  if (!foundObject) return;
-  const p1id = foundObject.p1.move;
-  const p2id = foundObject.p2.move;
-
-  document.getElementById("turn").innerText = (foundObject.sum % 2 === 0) ? "O" : "X";
-
-  if (p1id) {
-    document.getElementById(p1id).innerText = "X";
-    document.getElementById(p1id).style.pointerEvents = "none";
-  }
-  if (p2id) {
-    document.getElementById(p2id).innerText = "O";
-    document.getElementById(p2id).style.pointerEvents = "none";
-  }
-  endCheck(name, foundObject.sum);
-});
-
-  const winningCombinations = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
-        [0, 4, 8], [2, 4, 6]             // diagonals
-      ];
-  
-  function endCheck(name, sum){
-    let board = [];
-    document.getElementById("0").innerText !== '' ? board[0] = '' : board[0] = document.getElementById("0").innerText;
-    document.getElementById("1").innerText !== '' ? board[1] = '' : board[1] = document.getElementById("1").innerText;
-    document.getElementById("2").innerText !== '' ? board[2] = '' : board[2] = document.getElementById("2").innerText;
-    document.getElementById("3").innerText !== '' ? board[3] = '' : board[3] = document.getElementById("3").innerText;
-    document.getElementById("4").innerText !== '' ? board[4] = '' : board[4] = document.getElementById("4").innerText;
-    document.getElementById("5").innerText !== '' ? board[5] = '' : board[5] = document.getElementById("5").innerText;
-    document.getElementById("6").innerText !== '' ? board[6] = '' : board[6] = document.getElementById("6").innerText;
-    document.getElementById("7").innerText !== '' ? board[7] = '' : board[7] = document.getElementById("7").innerText;
-    document.getElementById("8").innerText !== '' ? board[8] = '' : board[8] = document.getElementById("8").innerText;
-
-    for(const combination of winningCombinations) {
-      const [a,b,c] = combination;
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        socket.emit("gameOver", {name:name, result:board[a]});
-        break;
+    
+    socket.on("playerFound", (data) => {
+      const opponent = data.opponent;
+      playerSymbol = data.player.value;
+      document.getElementById('userContainer').style.display = "block";
+      document.getElementById('oppContainer').style.display = "block";
+      document.getElementById('valueContainer').style.display = "block";
+      document.getElementById('loading').style.display = "none";
+      document.getElementById('name').style.display = "none";
+      document.getElementById('find').style.display = "none";
+      document.getElementById('enterName').style.display = "none";
+      document.getElementById('board').style.display = "grid";
+      document.getElementById('whosTurn').style.display = "block";
+      document.getElementById('info-box').style.display = "block";
+      document.getElementById('turn').innerText = 'X';
+      document.getElementById('opponent').innerText = opponent;
+      document.getElementById('value').innerText = playerSymbol;
+      
+      document.querySelectorAll(".cell").forEach(cell => {
+        cell.addEventListener('click', function () {
+          const id = this.id;
+          console.log(`Clicked cell with id "${id}" and playerSymbol "${playerSymbol}"`);
+          socket.emit("playing", { value: playerSymbol, id: id, name: name });
+        });
+      });
+    });
+    
+    socket.on("playing", (data) => {
+      console.log("Playing event data received:", data);
+      const foundObject = data.find(obj => obj.p1.name === name || obj.p2.name === name);
+      if (!foundObject) return;
+      const p1id = foundObject.p1.move;
+      const p2id = foundObject.p2.move;
+    
+      document.getElementById("turn").innerText = (foundObject.sum % 2 === 0) ? "O" : "X";
+    
+      if (p1id) {
+        document.getElementById(p1id).innerText = "X";
+        document.getElementById(p1id).style.pointerEvents = "none";
+      }
+      if (p2id) {
+        document.getElementById(p2id).innerText = "O";
+        document.getElementById(p2id).style.pointerEvents = "none";
+      }
+      if (!gameEnded){
+        endCheck(name, foundObject.sum);
+      }
+    });
+    
+    function endCheck(name, sum) {
+      board = Array.from({ length: 9 }, (_, i) => document.getElementById(i.toString()).innerText || '');
+      socket.emit("endCheck", { name, board, sum });
+    }
+    
+    socket.on("gameOver", (data) => {
+      const { name, result, gameCount, XWinCount, OWinCount, tieCount } = data;
+      if(result){
+        let message;
+        if(result ==='X' || result === 'O'){
+          message = `Player ${name}, playing as ${result} has won the game.`;
+        }
+        else if(result === 'tie'){
+          message = `The game has resulted in a ${result}`;
+        }
+        else message = "gameOver called with no result given.";
+        document.getElementById("gameCount").innerText = `${gameCount}`; 
+        document.getElementById("XWins").innerText = `${XWinCount}`; 
+        document.getElementById("OWins").innerText = `${OWinCount}`;
+        document.getElementById("ties").innerText = `${tieCount}`;
+        if(result !== null){
+          gameEnded = true;
+          let temp = document.getElementById("whosTurn").innerText;
+          document.getElementById("whosTurn").innerText = message;
+          let timeoutID = setTimeout(() => {
+            document.querySelectorAll('.cell').forEach(cell => {
+              cell.innerText = '';
+              cell.style.pointerEvents = 'auto';
+              document.getElementById("whosTurn").innerText = temp;
+              gameEnded = false;
+            });
+          }, 3000);
         }
       }
-      if(sum===10 && result !== undefined){
-        result = "tie";
-        socket.emit("gameOver", {name:name, result:result});
-      }
-      else {
-        result = null;
-      }
-  }
-
-  socket.on("gameOver", (data) => {
-    const {name, result} = data;
-    document.getElementById("0").innerText = '';
-    document.getElementById("1").innerText = '';
-    document.getElementById("2").innerText = '';
-    document.getElementById("3").innerText = '';
-    document.getElementById("4").innerText = '';
-    document.getElementById("5").innerText = '';
-    document.getElementById("6").innerText = '';
-    document.getElementById("7").innerText = '';
-    document.getElementById("8").innerText = '';
-    alert(`${name} playing as ${result} has won the game`);
-});
-  </script>
+    });
+</script>
 </body>
 </html>
