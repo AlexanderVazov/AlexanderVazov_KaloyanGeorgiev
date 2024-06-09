@@ -206,13 +206,13 @@
       for (const combination of winningCombinations) {
         const [a, b, c] = combination;
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-          return board[a];
+          return board[a];  
         }
       }
       for(let i=0;i<9;i++){
-        if(board[i]==='')return null;
+        if(board[i]==='')return null;//null
       }
-      return 'tie';
+      return 'tie';//'tie'
     }
     function endGame(board = gameState){
       let message = undefined;
@@ -237,59 +237,60 @@
         }
       }
     }
-    let scores = {
-      'X': 0,
-      'O': 0,
-      'tie': 0,
+      let scores = {
+        'tie': 0,
+        'X': -10,
+        'O': 10,
+      }
+      function minimax(gameState, depth, isMaximizing) {
+    let result = endCheck(gameState);
+      if (result !== null) {
+        console.log(scores[result] - depth , "calculated", depth);
+        return scores[result] - depth; // Adjust score by depth to prefer faster wins and slower losses
+      }
+
+    if (isMaximizing) {
+      let bestScore =  -Infinity;
+      for (let i = 0; i < gameState.length; i++) {
+        if (gameState[i] === '') {
+          gameState[i] = 'O'; // Maximizer is 'O'
+          let score = minimax(gameState, depth + 1, false);
+          gameState[i] = '';
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+      console.log("O maximizer", bestScore);
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < gameState.length; i++) {
+        if (gameState[i] === '') {
+          gameState[i] = 'X'; // Minimizer is 'X'
+          let score = minimax(gameState, depth + 1, true);
+          gameState[i] = '';
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+      return bestScore;
     }
-    function minimax(gameState, depth, isMaximizing) {
-  let result = endCheck(gameState);
-  if (result !== null) {
-    console.log(scores[result] - depth , "calculated");
-    return scores[result] - depth; // Adjust score by depth to prefer faster wins and slower losses
   }
 
-  if (isMaximizing) {
-    let bestScore =  -Infinity;
+  function bestMove(gameState) {
+    let bestScore = -Infinity;
+    let move = -1;
     for (let i = 0; i < gameState.length; i++) {
       if (gameState[i] === '') {
-        gameState[i] = 'O'; // Maximizer is 'O'
-        let score = minimax(gameState, depth + 1, false);
+        gameState[i] = 'O'; // Assume 'O' is the AI
+        let score = minimax(gameState, 0, false);
         gameState[i] = '';
-        bestScore = Math.max(score, bestScore);
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
       }
     }
-    return bestScore;
-  } else {
-    let bestScore = Infinity;
-    for (let i = 0; i < gameState.length; i++) {
-      if (gameState[i] === '') {
-        gameState[i] = 'X'; // Minimizer is 'O'
-        let score = minimax(gameState, depth + 1, true);
-        gameState[i] = '';
-        bestScore = Math.min(score, bestScore);
-      }
-    }
-    return bestScore;
+    return move;
   }
-}
-
-function bestMove(gameState) {
-  let bestScore = -Infinity;
-  let move = -1;
-  for (let i = 0; i < gameState.length; i++) {
-    if (gameState[i] === '') {
-      gameState[i] = 'X'; // Assume 'X' is the AI
-      let score = minimax(gameState, 0, false);
-      gameState[i] = '';
-      if (score > bestScore) {
-        bestScore = score;
-        move = i;
-      }
-    }
-  }
-  return move;
-}
   </script>
 </body>
 </html>
