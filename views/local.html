@@ -184,7 +184,7 @@
    dropdown.addEventListener('change', function() {
     if(dropdown.value!==gameMode){
         gameMode = dropdown.value;
-        newGame();
+        newGame(false);
         console.log('The game mode has been set to ' + gameMode + ' and a new game has been started');
       }
       else console.log(gameMode + ' has already been selected, nothing changed')
@@ -204,7 +204,9 @@
         if (endCheck(gameState) !== null) {
           endGame(gameState);
           clearTimeout(timeoutID); // Clears timeout in case the function is executed again before the previous timeout has expired.
-          timeoutID = setTimeout(newGame, 3000);
+          timeoutID = setTimeout(() => {
+            newGame(true);
+          }, 3000);
         } else {
           switchTurn();
           header.innerHTML = 'Turn: ' + turn;
@@ -223,13 +225,13 @@
       await makeMove(bestMove(gameState), 'AI');
     }
 
-    function newGame(){
+    function newGame(changeTurns){
       gameEnded = false;
         for(let i=0;i<9;i++){
           gameState[i]='';
           document.getElementById((i).toString()).innerHTML = '';
         }
-        if(gameCount>0){
+        if(changeTurns){
           firstTurn = firstTurn === 'X' ? 'O' : 'X';
           turn=firstTurn;
         }
