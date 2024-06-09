@@ -194,7 +194,7 @@ io.on("connection", (socket) => {
 
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/views/index.html');
+    res.sendFile(__dirname + '/views/local.html');
 });
 
 app.get('/online-pvp', (req, res) => {
