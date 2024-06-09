@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
@@ -8,9 +7,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 const port = 3000;
 
-app.use(bodyParser.json());
 app.use(express.static('public'));
-app.set('view engine', 'ejs');
 
 let arr = [];
 let playingArr = [];
@@ -197,13 +194,13 @@ io.on("connection", (socket) => {
 
 
 app.get('/', (req, res) => {
-    res.render('index', { title: "Tic Tac Toe" });
+    res.sendFile(__dirname + '/views/index.html');
 });
 
 app.get('/online-pvp', (req, res) => {
-    res.render('online-pvp');
+    res.sendFile(__dirname + '/views/online-pvp.html');
 });
 
 server.listen(port, () => {
-    console.log(`Server started at https://localhost:${port}`);
+    console.log(`Server started at http://localhost:${port}`);
 });
