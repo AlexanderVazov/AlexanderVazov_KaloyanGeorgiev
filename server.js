@@ -122,11 +122,11 @@ io.on("connection", (socket) => {
                     global.board[cell]='';
                   }
                   gameEnded = true;
-                  turn = 'X';
+                  //turn = 'X';
                   obj = null; // Reset the obj
         
                   // Emit the gameOver event to all connected sockets
-                  io.emit("gameOver", {name:name, result: result, gameCount: gameCount, XWinCount: XWinCount, OWinCount: OWinCount, tieCount: tieCount});
+                  io.emit("gameOver", {name:name, board: global.board,result: result, gameCount: gameCount, XWinCount: XWinCount, OWinCount: OWinCount, tieCount: tieCount});
                 }
             }
         }
@@ -168,19 +168,24 @@ io.on("connection", (socket) => {
 
       socket.on("gameOver", (data) => {
         console.log(playingArr);
-        const{name, result} = data;
-        if(result !=='tie' && result !==null)console.log(`${name} has won the game.`);
-        else if(result==='tie')console.log(`The game has resulted in a ${result}`);
-        for(let cell in global.board){
-            global.board[cell]='';
+        const { name, board, result } = data;
+        if (result !== 'tie' && result !== null) console.log(`${name} has won the game.`);
+        else if (result === 'tie') console.log(`The game has resulted in a ${result}`);
+        
+        for (let cell in global.board) {
+            global.board[cell] = '';
         }
-        gameEnded = true;
-        //turn = 'X';
+    
+        // turn = 'X'; // if you want to reset turn to X, uncomment this line
         obj = null; // Reset the obj
         playingArr = []; // Reset the playingArr
+        gameEnded = false; // Reset gameEnded
     
         // Emit the gameOver event to all connected sockets
-        io.emit("gameOver", {name:name, result: result, gameCount: gameCount, XWinCount: XWinCount, OWinCount: OWinCount, tieCount: tieCount});
+        io.emit("gameOver", { name: name, result: result, gameCount: gameCount, XWinCount: XWinCount, OWinCount: OWinCount, tieCount: tieCount });
+    
+        // Emit the resetGame event to reset the client-side state
+        io.emit("resetGame");
     });
 
     socket.on("disconnect", () => {
@@ -200,5 +205,5 @@ app.get('/online-pvp', (req, res) => {
 });
 
 server.listen(port, () => {
-    console.log(`Listening on port ${port}`);
+    console.log(`Server started at https://localhost:${port}`);
 });

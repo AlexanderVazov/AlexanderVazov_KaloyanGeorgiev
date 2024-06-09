@@ -8,9 +8,12 @@
 <body>
   <h1 id="title">Tic Tac Toe</h1>
   <div id="gamemode-selector">
-    <button class="button" id="PvP" onclick="selectGameMode('PvP')">Local PvP</button>
-    <button class="button" id="PvAI" onclick="selectGameMode('PvAI')">PvAI</button>
-    <a href="/online-pvp"><button class="button" id="OnlinePvP">Online PvP</button></a>
+    <select id="gamemode" class="styled-select">
+      <option value="Local" disabled selected hidden>Local</option>
+      <option value="PvP" onclick="selectGameMode('PvP')">PvP</option>
+      <option value="PvAI" onclick="selectGameMode('PvAI')">PvAI</option>
+    </select>
+    <a href="/online-pvp"><button class="button" id="Online" onclick="window.location.reload()">Online</button></a>
   </div>
   <div class="board">
     <div class="cell" id="0" onclick="makeMove(0, 'player')"></div>
@@ -62,7 +65,20 @@
         cursor: pointer;
         transition: background-color 0.3s, color 0.3s;
     }
-    button:hover {
+    .styled-select {
+      padding: 10px 20px; 
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #1f1f1f;
+      color: #ccc;
+      font-size: 24px; 
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      width: auto; 
+      height: auto; 
+    }
+    button:hover, .styled-select:hover {
         background-color: #ccc;
         color: #1f1f1f;
     }
@@ -116,6 +132,15 @@
       cursor: pointer;
       color: #ccc;
       user-select: none; 
+      transition: ease 0.3s;
+    }
+    .cell:hover {
+      background-color: #7e7e7e;
+      transition: ease 0.3s;
+    }
+    .cell:active {
+      background-color: #ccc;
+      transition: ease 0.3s;
     }
     .info-box {
       display: flex;
@@ -153,6 +178,16 @@
       [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
       [0, 4, 8], [2, 4, 6]             // diagonals
     ];
+
+    dropdown =  document.getElementById("gamemode");
+   dropdown.addEventListener('change', function() {
+    if(dropdown.value!==gameMode){
+        gameMode = dropdown.value;
+        newGame();
+        console.log('The game mode has been set to ' + gameMode + ' and a new game has been started');
+      }
+      else console.log(gameMode + ' has already been selected, nothing changed')
+    });
     function selectGameMode(mode){
       if(mode!==gameMode){
         gameMode = mode;
@@ -223,25 +258,25 @@
         gameEnded = true;
         if(result==='X'||result==='O'){
           message = result + ' has won the game.'
-          if(result==='X')document.getElementById('XWins').innerHTML = ('X wins: ' + (++XWinCount).toString());
-          else if(result==='O')document.getElementById('OWins').innerHTML = ('O wins: ' + (++OWinCount).toString());
+          if(result==='X')document.getElementById('XWins').innerHTML = (++XWinCount).toString();
+          else if(result==='O')document.getElementById('OWins').innerHTML = (++OWinCount).toString();
           else console.log('Counter Error');
         }
         else if(result==='tie'){
           message = 'The game has resulted in a tie.';
-          document.getElementById('ties').innerHTML = ('Ties: ' + (++tieCount).toString());
+          document.getElementById('ties').innerHTML = (++tieCount).toString();
         }
         if(message!==undefined){
-          document.getElementById('gameCount').innerHTML = ('Games: ' + (++gameCount).toString())
+          document.getElementById('gameCount').innerHTML = (++gameCount).toString();
           console.log(message);
           header.innerHTML = (message);
         }
       }
     }
     let scores = {
-      'X': 1,
+      'X': 10,
       'tie': 0,
-      'O': -1
+      'O': -10
     }
     function bestMove(gameState){
       let bestScore = Infinity;
