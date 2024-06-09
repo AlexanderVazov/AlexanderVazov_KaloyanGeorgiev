@@ -273,60 +273,60 @@
         }
       }
     }
-    let scores = {
-      'X': 10,
-      'tie': 0,
-      'O': -10
-    }
-    function bestMove(gameState){
-      let bestScore = Infinity;
-      let move = null;
-      for(let i=0;i<gameState.length;i++)
-      {
-        if(gameState[i]===''){
-          gameState[i]='X';
-          let score = minimax(gameState, 0, false);
-          gameState[i]='';
-          if(score<bestScore) {
-            bestScore = score;
-            move = i;
-          }
-        }
+      let scores = {
+        'tie': 0,
+        'X': -10,
+        'O': 10,
       }
-      return move;
-    }
-    function minimax(gameState, depth, isMaximizing){
-      let copyOfGameState = Array.from(gameState);
+      function minimax(gameState, depth, isMaximizing) {
+    let result = endCheck(gameState);
+      if (result !== null) {
+        console.log(scores[result] - depth , "calculated", depth);
+        return scores[result] - depth; // Adjust score by depth to prefer faster wins and slower losses
+      }
 
-      let result = endCheck(copyOfGameState);
-      if(result!==null){
-        return scores[result];
-      }
-      if(isMaximizing){
-        let bestScore = -Infinity;
-        for(let i=0;i<copyOfGameState.length;i++) {
-          if(copyOfGameState[i] === ''){
-            copyOfGameState[i] = 'X';
-            let score = minimax(copyOfGameState, depth + 1, false);
-            copyOfGameState[i] = '';
-            bestScore = Math.max(score, bestScore);
-          }
+    if (isMaximizing) {
+      let bestScore =  -Infinity;
+      for (let i = 0; i < gameState.length; i++) {
+        if (gameState[i] === '') {
+          gameState[i] = 'O'; // Maximizer is 'O'
+          let score = minimax(gameState, depth + 1, false);
+          gameState[i] = '';
+          bestScore = Math.max(score, bestScore);
         }
-        return bestScore;
       }
-      else {
-        let bestScore = Infinity;
-        for(let i=0;i<copyOfGameState.length;i++) {
-          if(copyOfGameState[i] === ''){
-            copyOfGameState[i] = 'O';
-            let score = minimax(copyOfGameState, depth + 1, true);
-            copyOfGameState[i] = '';
-            bestScore = Math.min(score, bestScore);
-          }
+      console.log("O maximizer", bestScore);
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < gameState.length; i++) {
+        if (gameState[i] === '') {
+          gameState[i] = 'X'; // Minimizer is 'X'
+          let score = minimax(gameState, depth + 1, true);
+          gameState[i] = '';
+          bestScore = Math.min(score, bestScore);
         }
-        return bestScore;
+      }
+      return bestScore;
+    }
+  }
+
+  function bestMove(gameState) {
+    let bestScore = -Infinity;
+    let move = -1;
+    for (let i = 0; i < gameState.length; i++) {
+      if (gameState[i] === '') {
+        gameState[i] = 'O'; // Assume 'O' is the AI
+        let score = minimax(gameState, 0, false);
+        gameState[i] = '';
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
       }
     }
+    return move;
+  }
   </script>
 </body>
 </html>
