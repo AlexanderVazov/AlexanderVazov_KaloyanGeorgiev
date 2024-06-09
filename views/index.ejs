@@ -294,3 +294,336 @@
   </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+</head>
+<body>
+  <h1 id="title">Tic Tac Toe</h1>
+  <div id="gamemode-selector">
+    <select id="gamemode" class="styled-select">
+      <option value="Local" disabled selected hidden>Local</option>
+      <option value="PvP" onclick="selectGameMode('PvP')">PvP</option>
+      <option value="PvAI" onclick="selectGameMode('PvAI')">PvAI</option>
+    </select>
+    <a href="/online-pvp"><button class="button" id="Online" onclick="window.location.reload()">Online</button></a>
+  </div>
+  <div class="board">
+    <div class="cell" id="0" onclick="makeMove(0, 'player')"></div>
+    <div class="cell" id="1" onclick="makeMove(1, 'player')"></div>
+    <div class="cell" id="2" onclick="makeMove(2, 'player')"></div>
+    <div class="cell" id="3" onclick="makeMove(3, 'player')"></div>
+    <div class="cell" id="4" onclick="makeMove(4, 'player')"></div>
+    <div class="cell" id="5" onclick="makeMove(5, 'player')"></div>
+    <div class="cell" id="6" onclick="makeMove(6, 'player')"></div>
+    <div class="cell" id="7" onclick="makeMove(7, 'player')"></div>
+    <div class="cell" id="8" onclick="makeMove(8, 'player')"></div>
+  </div>
+  <h2 id="header">Turn: X</h2>
+  <div class="info-box">
+    <div class="element" id="gameCountCont">Games: <span id="gameCount" >0</span></div>
+    <div class="element" id="XWinsCont">X wins: <span id="XWins">0</span></div>
+    <div class="element" id="OWinsCont">O wins: <span id="OWins">0</span></div>
+    <div class="element" id="tiesCont">Ties: <span id="ties">0</span></div>
+  </div>
+  <style>
+    body {
+        background-color: #262626;
+        color: #ccc;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+    h1, p {
+        margin: 20px 0;
+    }
+    input[type="text"] {
+        padding: 10px;
+        margin: 10px 0;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #1f1f1f;
+        color: #ccc;
+        font-size: 16px;
+    }
+    button {
+        padding: 10px 20px;
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        background-color: #1f1f1f;
+        color: #ccc;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .styled-select {
+      padding: 10px 20px; 
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #1f1f1f;
+      color: #ccc;
+      font-size: 24px; 
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      width: auto; 
+      height: auto; 
+    }
+    button:hover, .styled-select:hover {
+        background-color: #ccc;
+        color: #1f1f1f;
+    }
+    #title {
+      text-align: center;
+      color: #ccc;
+      font-size: 60px;
+    }
+    #header {
+      text-align: center;
+      color: #ccc;
+      font-size: 30px;
+    }
+    #gamemode-selector {
+      justify-content: center;
+      text-align: center;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    .button {
+      color: #ccc;
+      background-color: #1f1f1f;
+      font-size: 25px;
+      border-radius: 8px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .button:hover {
+        background-color: #ccc;
+        color: #1f1f1f;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 2px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      padding-top: 60px;
+      padding-bottom: 30px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #1f1f1f;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      cursor: pointer;
+      color: #ccc;
+      user-select: none; 
+      transition: ease 0.3s;
+    }
+    .cell:hover {
+      background-color: #7e7e7e;
+      transition: ease 0.3s;
+    }
+    .cell:active {
+      background-color: #ccc;
+      transition: ease 0.3s;
+    }
+    .info-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 10px;
+      color: #ccc;
+      margin: 0 auto;
+      border: 3px solid #ccc;
+      border-width: 1px;
+      max-width: 300px;
+      font-size: 30px;
+    }
+    .info-box .element {
+      flex: 1;
+      margin-bottom: 5px;
+    }
+  </style>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script>
+    let firstTurn = 'X'
+    let turn = firstTurn;
+    let gameMode = 'PvP';
+    let gameCount=0;
+    let XWinCount=0;
+    let OWinCount=0;
+    let tieCount=0;
+    let timeoutID;
+    let gameEnded = false;
+    let gameState = new Array(9).fill('');
+    const header = document.getElementById('header');
+    const winningCombinations = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+      [0, 4, 8], [2, 4, 6]             // diagonals
+    ];
+
+    dropdown =  document.getElementById("gamemode");
+   dropdown.addEventListener('change', function() {
+    if(dropdown.value!==gameMode){
+        gameMode = dropdown.value;
+        newGame();
+        console.log('The game mode has been set to ' + gameMode + ' and a new game has been started');
+      }
+      else console.log(gameMode + ' has already been selected, nothing changed')
+    });
+    function selectGameMode(mode){
+      if(mode!==gameMode){
+        gameMode = mode;
+        newGame();
+        console.log('The game mode has been set to ' + gameMode + ' and a new game has been started');
+      }
+      else console.log(gameMode + ' has already been selected, nothing changed')
+    }
+    
+    function switchTurn()
+    {
+      if(turn === 'X')turn = 'O';
+      else if(turn === 'O')turn = 'X';
+      else console.log('Error');
+    }
+    function makeMove(pos, caller) {
+      if (!gameEnded && gameState[pos] === '') {
+        gameState[pos] = turn;
+        document.getElementById(pos.toString()).innerHTML = turn;
+        console.log('Position ' + pos + ' has been set to ' + turn + ' by the ' + caller);
+
+        if (endCheck(gameState) !== null) {
+          endGame(gameState);
+          clearTimeout(timeoutID); // Clears timeout in case the function is executed again before the previous timeout has expired.
+          timeoutID = setTimeout(newGame, 3000);
+        } else {
+          switchTurn();
+          header.innerHTML = 'Turn: ' + turn;
+
+          if (gameMode === 'PvAI' && turn === 'O') {
+            makeMove(bestMove(gameState), 'AI');
+          }
+        }
+      } else if (!gameEnded) {
+        console.log('Position ' + pos + ' is already taken');
+      }
+    }
+
+    function newGame(){
+      gameEnded = false;
+        for(let i=0;i<9;i++){
+          gameState[i]='';
+          document.getElementById((i).toString()).innerHTML = '';
+        }
+        /* if(firstTurn === 'X')firstTurn = 'O';
+        else if (firstTurn === 'O')firstTurn = 'X';
+        turn=firstTurn; */ // - alternates the first turn to make it fair when playing against a person, should be implemented to work with AI but I CBA to do it atm
+        turn = 'X';
+        header.innerHTML = 'Turn: ' + turn;
+    }
+    function endCheck(board = gameState){
+      for (const combination of winningCombinations) {
+        const [a, b, c] = combination;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          return board[a];
+        }
+      }
+      for(let i=0;i<9;i++){
+        if(board[i]==='')return null;
+      }
+      return 'tie';
+    }
+    function endGame(board = gameState){
+      let message = undefined;
+      let result=endCheck(board);
+      if(result===null)return;
+      else {
+        gameEnded = true;
+        if(result==='X'||result==='O'){
+          message = result + ' has won the game.'
+          if(result==='X')document.getElementById('XWins').innerHTML = (++XWinCount).toString();
+          else if(result==='O')document.getElementById('OWins').innerHTML = (++OWinCount).toString();
+          else console.log('Counter Error');
+        }
+        else if(result==='tie'){
+          message = 'The game has resulted in a tie.';
+          document.getElementById('ties').innerHTML = (++tieCount).toString();
+        }
+        if(message!==undefined){
+          document.getElementById('gameCount').innerHTML = (++gameCount).toString();
+          console.log(message);
+          header.innerHTML = (message);
+        }
+      }
+    }
+    let scores = {
+      'X': 10,
+      'tie': 0,
+      'O': -10
+    }
+    function bestMove(gameState){
+      let bestScore = Infinity;
+      let move = null;
+      for(let i=0;i<gameState.length;i++)
+      {
+        if(gameState[i]===''){
+          gameState[i]='X';
+          let score = minimax(gameState, 0, false);
+          gameState[i]='';
+          if(score<bestScore) {
+            bestScore = score;
+            move = i;
+          }
+        }
+      }
+      return move;
+    }
+    function minimax(gameState, depth, isMaximizing){
+      let copyOfGameState = Array.from(gameState);
+
+      let result = endCheck(copyOfGameState);
+      if(result!==null){
+        return scores[result];
+      }
+      if(isMaximizing){
+        let bestScore = -Infinity;
+        for(let i=0;i<copyOfGameState.length;i++) {
+          if(copyOfGameState[i] === ''){
+            copyOfGameState[i] = 'X';
+            let score = minimax(copyOfGameState, depth + 1, false);
+            copyOfGameState[i] = '';
+            bestScore = Math.max(score, bestScore);
+          }
+        }
+        return bestScore;
+      }
+      else {
+        let bestScore = Infinity;
+        for(let i=0;i<copyOfGameState.length;i++) {
+          if(copyOfGameState[i] === ''){
+            copyOfGameState[i] = 'O';
+            let score = minimax(copyOfGameState, depth + 1, true);
+            copyOfGameState[i] = '';
+            bestScore = Math.min(score, bestScore);
+          }
+        }
+        return bestScore;
+      }
+    }
+  </script>
+</body>
+</html>
