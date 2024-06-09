@@ -281,7 +281,7 @@
       function minimax(gameState, depth, isMaximizing) {
     let result = endCheck(gameState);
       if (result !== null) {
-        console.log(scores[result] - depth , "calculated", depth);
+        //console.log(scores[result] - depth , "calculated", depth);
         return scores[result] - depth; // Adjust score by depth to prefer faster wins and slower losses
       }
 
@@ -295,7 +295,7 @@
           bestScore = Math.max(score, bestScore);
         }
       }
-      console.log("O maximizer", bestScore);
+      //console.log("O maximizer", bestScore);
       return bestScore;
     } else {
       let bestScore = Infinity;
