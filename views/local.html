@@ -10,8 +10,8 @@
   <div id="gamemode-selector">
     <select id="gamemode" class="styled-select">
       <option value="Local" disabled selected hidden>Local</option>
-      <option value="PvP" onclick="selectGameMode('PvP')">PvP</option>
-      <option value="PvAI" onclick="selectGameMode('PvAI')">PvAI</option>
+      <option value="PvP">PvP</option>
+      <option value="PvAI">PvAI</option>
     </select>
     <a href="/online-pvp"><button class="button" id="Online" onclick="window.location.reload()">Online</button></a>
   </div>
@@ -165,6 +165,7 @@
     let firstTurn = 'X'
     let turn = firstTurn;
     let gameMode = 'PvP';
+    let aiDelay = 150;
     let gameCount=0;
     let XWinCount=0;
     let OWinCount=0;
@@ -187,16 +188,7 @@
         console.log('The game mode has been set to ' + gameMode + ' and a new game has been started');
       }
       else console.log(gameMode + ' has already been selected, nothing changed')
-    });
-    function selectGameMode(mode){
-      if(mode!==gameMode){
-        gameMode = mode;
-        newGame();
-        console.log('The game mode has been set to ' + gameMode + ' and a new game has been started');
-      }
-      else console.log(gameMode + ' has already been selected, nothing changed')
-    }
-    
+    });    
     function switchTurn()
     {
       if(turn === 'X')turn = 'O';
@@ -207,7 +199,7 @@
       if (!gameEnded && gameState[pos] === '') {
         gameState[pos] = turn;
         document.getElementById(pos.toString()).innerHTML = turn;
-        console.log('Position ' + pos + ' has been set to ' + turn + ' by the ' + caller);
+        console.log(`Position ${pos} has been set to ${turn} by the ${caller}`);
 
         if (endCheck(gameState) !== null) {
           endGame(gameState);
@@ -216,14 +208,19 @@
         } else {
           switchTurn();
           header.innerHTML = 'Turn: ' + turn;
-
-          if (gameMode === 'PvAI' && turn === 'O') {
-            makeMove(bestMove(gameState), 'AI');
+          if (gameMode === 'PvAI' && turn === 'O'){
+            setTimeout(() => {
+              AIMove();
+            }, aiDelay);
           }
         }
       } else if (!gameEnded) {
         console.log('Position ' + pos + ' is already taken');
       }
+    }
+
+    async function AIMove() {
+      await makeMove(bestMove(gameState), 'AI');
     }
 
     function newGame(){
@@ -232,11 +229,16 @@
           gameState[i]='';
           document.getElementById((i).toString()).innerHTML = '';
         }
-        /* if(firstTurn === 'X')firstTurn = 'O';
-        else if (firstTurn === 'O')firstTurn = 'X';
-        turn=firstTurn; */ // - alternates the first turn to make it fair when playing against a person, should be implemented to work with AI but I CBA to do it atm
-        turn = 'X';
+        if(gameCount>0){
+          firstTurn = firstTurn === 'X' ? 'O' : 'X';
+          turn=firstTurn;
+        }
         header.innerHTML = 'Turn: ' + turn;
+        if(gameMode==='PvAI'&&turn==='O'){
+          setTimeout(() => {
+              AIMove();
+            }, aiDelay);
+        }
     }
     function endCheck(board = gameState){
       for (const combination of winningCombinations) {
