@@ -13,7 +13,7 @@
       <option value="PvP">PvP</option>
       <option value="PvAI">PvAI</option>
     </select>
-    <a href="/online-pvp"><button class="button" id="Online" onclick="window.location.reload()">Online</button></a>
+    <a href="/online-pvp"><button class="button" id="Online">Online</button></a>
   </div>
   <div class="board">
     <div class="cell" id="0" onclick="makeMove(0, 'player')"></div>
@@ -160,12 +160,11 @@
       margin-bottom: 5px;
     }
   </style>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
   <script>
     let firstTurn = 'X'
     let turn = firstTurn;
     let gameMode = 'PvP';
-    let aiDelay = 150;
+    let aiDelay = 250;
     let gameCount=0;
     let XWinCount=0;
     let OWinCount=0;
@@ -199,7 +198,7 @@
       if (!gameEnded && gameState[pos] === '') {
         gameState[pos] = turn;
         document.getElementById(pos.toString()).innerHTML = turn;
-        console.log(`Position ${pos} has been set to ${turn} by the ${caller}`);
+        console.log(`Position ${pos} has been set to ${turn} by the ${caller}.`);
 
         if (endCheck(gameState) !== null) {
           endGame(gameState);
@@ -278,8 +277,8 @@
       }
     }
       let scores = {
-        'tie': 0,
         'X': -10,
+        'tie': 0,
         'O': 10,
       }
       function minimax(gameState, depth, isMaximizing) {

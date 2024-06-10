@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const http = require("http");
+const favicon = require('express-favicon');
 const { Server } = require("socket.io");
 
 const server = http.createServer(app);
@@ -8,6 +9,7 @@ const io = new Server(server);
 const port = 3000;
 
 app.use(express.static('public'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 
 let arr = [];
 let playingArr = [];
@@ -37,7 +39,7 @@ io.on("connection", (socket) => {
             const player1 = arr[0];
             const player2 = arr.find(p => p.id !== player1.id);
             if (player2) {
-                obj = {
+                global.obj = {
                     p1: {
                         name: player1.name,
                         value: "X",
@@ -50,11 +52,11 @@ io.on("connection", (socket) => {
                     },
                     sum: 1,
                 };
-                playingArr.push(obj);
+                playingArr.push(global.obj);
                 arr = arr.filter(p => p.id !== player1.id && p.id !== player2.id);
                 turn = 'X';
-                io.to(player1.id).emit("playerFound", { opponent: player2.name, player: obj.p1 });
-                io.to(player2.id).emit("playerFound", { opponent: player1.name, player: obj.p2 });
+                io.to(player1.id).emit("playerFound", { opponent: player2.name, player: global.obj.p1 });
+                io.to(player2.id).emit("playerFound", { opponent: player1.name, player: global.obj.p2 });
             }
         }
     });
@@ -120,7 +122,7 @@ io.on("connection", (socket) => {
                   }
                   gameEnded = true;
                   //turn = 'X';
-                  obj = null; // Reset the obj
+                  //obj = null; // Reset the obj
         
                   // Emit the gameOver event to all connected sockets
                   io.emit("gameOver", {name:name, board: global.board,result: result, gameCount: gameCount, XWinCount: XWinCount, OWinCount: OWinCount, tieCount: tieCount});
@@ -174,8 +176,8 @@ io.on("connection", (socket) => {
         }
     
         // turn = 'X'; // if you want to reset turn to X, uncomment this line
-        obj = null; // Reset the obj
-        playingArr = []; // Reset the playingArr
+        //obj = null; // Reset the obj
+        //playingArr = []; // Reset the playingArr
         gameEnded = false; // Reset gameEnded
     
         // Emit the gameOver event to all connected sockets
