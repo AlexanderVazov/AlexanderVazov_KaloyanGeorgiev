@@ -1,44 +1,47 @@
 body {
-    background-color: #262626;
-    color: #ccc;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    text-align: center;
+  background-color: #262626;
+  color: #ccc;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
 }
-#title, p {
-    margin: 10px 0;
-    font-size: 25px;
-    text-align: center;
-    color: #ccc;
-    font-size: 60px;
+#title,
+p {
+  margin: 10px 0;
+  font-size: 25px;
+  text-align: center;
+  color: #ccc;
+  font-size: 60px;
 }
 p {
   font-size: 25px;
 }
 input[type="text"] {
-    padding: 10px;
-    margin: 10px 0;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    background-color: #1f1f1f;
-    color: #ccc;
-    font-size: 20px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #1f1f1f;
+  color: #ccc;
+  font-size: 20px;
 }
 button {
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    border-radius: 8px;
-    background-color: #1f1f1f;
-    color: #ccc;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #1f1f1f;
+  color: #ccc;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 button:hover {
-    background-color: #ccc;
-    color: #1f1f1f;
+  background-color: #ccc;
+  color: #1f1f1f;
 }
 #header {
   text-align: center;
@@ -56,11 +59,13 @@ button:hover {
   background-color: #1f1f1f;
   font-size: 25px;
   border-radius: 8px;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 .button:hover {
-    background-color: #ccc;
-    color: #1f1f1f;
+  background-color: #ccc;
+  color: #1f1f1f;
 }
 .board {
   display: grid;
@@ -84,7 +89,7 @@ button:hover {
   font-size: 40px;
   cursor: pointer;
   color: #ccc;
-  user-select: none; 
+  user-select: none;
   transition: ease 0.3s;
 }
 .cell:hover {
