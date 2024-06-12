@@ -191,14 +191,9 @@
       let gameState = new Array(9).fill("");
       const header = document.getElementById("header");
       const winningCombinations = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8], // rows
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8], // columns
-        [0, 4, 8],
-        [2, 4, 6], // diagonals
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+        [0, 4, 8], [2, 4, 6], // diagonals
       ];
 
       dropdown = document.getElementById("gamemode");
@@ -206,11 +201,7 @@
         if (dropdown.value !== gameMode) {
           gameMode = dropdown.value;
           newGame(false);
-          console.log(
-            "The game mode has been set to " +
-              gameMode +
-              " and a new game has been started",
-          );
+          console.log(`The game mode has been set to ${gameMode} and a new game has been started`);
         } else
           console.log(gameMode + " has already been selected, nothing changed");
       });
@@ -296,19 +287,16 @@
           if (result === "X" || result === "O") {
             message = result + " has won the game.";
             if (result === "X")
-              document.getElementById("XWins").innerHTML =
-                (++XWinCount).toString();
+              document.getElementById("XWins").innerHTML = (++XWinCount).toString();
             else if (result === "O")
-              document.getElementById("OWins").innerHTML =
-                (++OWinCount).toString();
+              document.getElementById("OWins").innerHTML = (++OWinCount).toString();
             else console.log("Counter Error");
           } else if (result === "tie") {
             message = "The game has resulted in a tie.";
             document.getElementById("ties").innerHTML = (++tieCount).toString();
           }
           if (message !== undefined) {
-            document.getElementById("gameCount").innerHTML =
-              (++gameCount).toString();
+            document.getElementById("gameCount").innerHTML = (++gameCount).toString();
             console.log(message);
             header.innerHTML = message;
           }
@@ -323,7 +311,7 @@
         let result = endCheck(gameState);
         if (result !== null) {
           //console.log(scores[result] - depth , "calculated", depth);
-          return scores[result] - depth; // Adjust score by depth to prefer faster wins and slower losses
+          return scores[result] - depth;
         }
 
         if (isMaximizing) {

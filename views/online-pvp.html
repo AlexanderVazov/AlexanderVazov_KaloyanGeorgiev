@@ -178,6 +178,7 @@
       }
       #loading {
         width: 50px;
+        user-select: none;
       }
     </style>
     <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
@@ -246,13 +247,12 @@
         console.log(`foundObject: ${foundObject}`);
         if (!foundObject) {
           console.log("Object not found when attempting to make move.");
-          //return;
+          return;
         }
         const p1id = foundObject.p1.move;
         const p2id = foundObject.p2.move;
 
-        document.getElementById("turn").innerText =
-          foundObject.sum % 2 === 0 ? "O" : "X";
+        document.getElementById("turn").innerText = foundObject.sum % 2 === 0 ? "O" : "X";
 
         if (p1id) {
           document.getElementById(p1id).innerText = "X";
