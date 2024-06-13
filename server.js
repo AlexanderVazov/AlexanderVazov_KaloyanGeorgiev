@@ -23,11 +23,53 @@ const winningCombinations = [
   [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
   [0, 4, 8], [2, 4, 6], // diagonals
 ];
-let turn = "X";
-global.obj;
+global.obj = {};  // Initialize global.obj to prevent reference errors
 global.board = ["", "", "", "", "", "", "", "", ""];
+let turn = "X";  // Initialize turn to "X" at the start
+
+function resetGame() {
+  global.board.fill("");
+  gameEnded = false;
+}
+
+function endCheck(socket, name, sum) {
+  let result;
+  for (const combination of winningCombinations) {
+    const [a, b, c] = combination;
+    if (global.board[a] && global.board[a] === global.board[b] && global.board[a] === global.board[c]) {
+      result = global.board[a];
+      break;
+    }
+  }
+  if (sum === 10 && !result) {
+    result = "tie";
+  }
+  if (result) {
+    if (result === "X") {
+      XWinCount++;
+      name = obj.p1.name;
+    } else if (result === "O") {
+      OWinCount++;
+      name = obj.p2.name;
+    } else if (result === "tie") {
+      tieCount++;
+      name = "null";
+    }
+    gameCount++;
+    io.emit("gameOver", {
+      name: name,
+      result: result,
+      gameCount: gameCount,
+      XWinCount: XWinCount,
+      OWinCount: OWinCount,
+      tieCount: tieCount,
+    });
+  }
+}
+
 io.on("connection", (socket) => {
   console.log("A user connected.");
+  
   socket.on("find", (name) => {
     console.log("Searching for player: " + name);
     arr.push({ id: socket.id, name: name });
@@ -64,9 +106,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("playing", (data) => {
-    // for(let cell in global.board){
-    //     console.log(`Cell ${cell} is occupied by ${global.board[cell]}`);
-    // }
     if (gameEnded) return;
     console.log("Playing event received:", data);
     const { value, id, name } = data;
@@ -76,7 +115,9 @@ io.on("connection", (socket) => {
       if (global.board[id] === "") {
         console.log(`Pos ${id} has been set to ${value}.`);
         global.board[id] = value;
-      } else console.log(`Pos ${id} is already taken by ${global.board[id]}.`);
+      } else {
+        console.log(`Pos ${id} is already taken by ${global.board[id]}.`);
+      }
       if (value === "X") {
         objToChange = playingArr.find((obj) => obj.p1.name === name);
         if (objToChange) {
@@ -92,91 +133,30 @@ io.on("connection", (socket) => {
         objToChange.sum++;
         console.log("Emitting updated playingArr:", playingArr);
         io.emit("playing", playingArr);
-
-        // Check for game over after updating the game state
-        let { name, board, sum } = data;
-        let result;
-        for (const combination of winningCombinations) {
-          const [a, b, c] = combination;
-          if (
-            global.board[a] &&
-            global.board[a] === global.board[b] &&
-            global.board[a] === global.board[c]
-          ) {
-            result = global.board[a];
-            break;
-          }
-        }
-        if (sum === 10 && !result) {
-          result = "tie";
-        }
-        if (result) {
-          if (result === "X") {
-            XWinCount++;
-            name = obj.p1.name;
-          } else if (result === "O") {
-            OWinCount++;
-            name = obj.p2.name;
-          } else if (result === "tie") {
-            tieCount++;
-            name = "null";
-          }
-          gameCount++;
-          for (let cell in global.board) {
-            global.board[cell] = "";
-          }
-          gameEnded = true;
-          //turn = 'X';
-          //obj = null; // Reset the obj
-
-          // Emit the gameOver event to all connected sockets
-          io.emit("gameOver", {
-            name: name,
-            board: global.board,
-            result: result,
-            gameCount: gameCount,
-            XWinCount: XWinCount,
-            OWinCount: OWinCount,
-            tieCount: tieCount,
-          });
-        }
+        endCheck(socket, name, objToChange.sum);
       }
-    } else console.log(`Clicked cell ${id}, but it is not ${value}'s turn.`);
+    } else {
+      console.log(`Clicked cell ${id}, but it is not ${value}'s turn.`);
+    }
   });
 
-  socket.on("endCheck", (data) => {
-    let { name, board, sum } = data;
-    let result;
-    for (const combination of winningCombinations) {
-      const [a, b, c] = combination;
-      if (
-        global.board[a] &&
-        global.board[a] === global.board[b] &&
-        global.board[a] === global.board[c]
-      ) {
-        result = global.board[a];
-        break;
-      }
-    }
-    if (sum === 10 && !result) {
-      result = "tie";
-    }
-    if (result) {
-      if (result === "X") {
-        XWinCount++;
-        name = obj.p1.name;
-      } else if (result === "O") {
-        OWinCount++;
-        name = obj.p2.name;
+  socket.on("gameOver", (data) => {
+    console.log(playingArr);
+    const { name, result } = data;
+    if(result!==null){
+      if (result !== "tie") {
+        console.log(`${name} has won the game.`);
       } else if (result === "tie") {
-        tieCount++;
-        name = "null";
+        console.log(`The game has resulted in a ${result}`);
       }
-      gameCount++;
-      for (cell in global.board) {
-        global.board[cell] = "";
-      }
-      socket.emit("gameOver", {
+
+      resetGame();
+      playingArr = playingArr.map((obj) => {
+        obj.p1.move = "";
+        obj.p2.move = "";
+        obj.sum = 1;
+      });
+      io.emit("gameOver", {
         name: name,
         result: result,
         gameCount: gameCount,
@@ -184,51 +164,14 @@ io.on("connection", (socket) => {
         OWinCount: OWinCount,
         tieCount: tieCount,
       });
+      io.emit("resetGame");
     }
-  });
-
-  socket.on("gameOver", (data) => {
-    console.log(playingArr);
-    const { name, board, result } = data;
-    if (result !== "tie" && result !== null)
-      console.log(`${name} has won the game.`);
-    else if (result === "tie")
-      console.log(`The game has resulted in a ${result}`);
-
-    for (let cell in global.board) {
-      global.board[cell] = "";
-    }
-
-    // turn = 'X'; // if you want to reset turn to X, uncomment this line
-    //obj = null; // Reset the obj
-    //playingArr = []; // Reset the playingArr
-    gameEnded = false; // Reset gameEnded
-    playingArr = playingArr.map((obj) => {
-      obj.p1.move = "";
-      obj.p2.move = "";
-      obj.sum = 1;
-      return obj;
-    });
-    // Emit the gameOver event to all connected sockets
-    io.emit("gameOver", {
-      name: name,
-      result: result,
-      gameCount: gameCount,
-      XWinCount: XWinCount,
-      OWinCount: OWinCount,
-      tieCount: tieCount,
-    });
-
-    // Emit the resetGame event to reset the client-side state
-    io.emit("resetGame");
   });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected.");
     arr = arr.filter((p) => p.id !== socket.id);
-    playingArr = playingArr.filter(
-      (obj) => obj.p1.id !== socket.id && obj.p2.id !== socket.id,
-    );
+    playingArr = playingArr.filter((obj) => obj.p1.name !== socket.name && obj.p2.name !== socket.name);
   });
 });
 

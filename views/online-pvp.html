@@ -1,322 +1,311 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tic Tac Toe</title>
-  </head>
-  <body>
-    <h1 id="title">Tic Tac Toe</h1>
-    <div id="gamemode-selector">
-      <a href="/"><button class="button" id="Local">Local</button></a>
-      <button class="button" id="Online" onclick="window.location.reload()">
-        Online
-      </button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      background-color: #262626;
+      color: #ccc;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    #title,
+    p {
+      margin: 10px 0;
+      font-size: 25px;
+      text-align: center;
+      color: #ccc;
+      font-size: 60px;
+    }
+    p {
+      font-size: 25px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      background-color: #1f1f1f;
+      color: #ccc;
+      font-size: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #1f1f1f;
+      color: #ccc;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    button:hover {
+      background-color: #ccc;
+      color: #1f1f1f;
+    }
+    #header {
+      text-align: center;
+      color: #ccc;
+      font-size: 35px;
+    }
+    #gamemode-selector {
+      justify-content: center;
+      text-align: center;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    .button {
+      color: #ccc;
+      background-color: #1f1f1f;
+      font-size: 25px;
+      border-radius: 8px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .button:hover {
+      background-color: #ccc;
+      color: #1f1f1f;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 2px;
+      margin: 0 auto;
+      justify-content: center;
+      align-items: center;
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #1f1f1f;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      cursor: pointer;
+      color: #ccc;
+      user-select: none;
+      transition: ease 0.3s;
+    }
+    .cell:hover {
+      background-color: #7e7e7e;
+      transition: ease 0.3s;
+    }
+    .cell:active {
+      background-color: #ccc;
+      transition: ease 0.3s;
+    }
+    .info-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 10px;
+      color: #ccc;
+      margin: 0 auto;
+      border: 3px solid #ccc;
+      border-width: 1px;
+      max-width: 300px;
+      font-size: 30px;
+    }
+    .info-box .element {
+      flex: 1;
+      margin-bottom: 5px;
+    }
+    #loading-cont {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #loading {
+      width: 50px;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">Tic Tac Toe</h1>
+  <div id="gamemode-selector">
+    <a href="/"><button class="button" id="Local">Local</button></a>
+    <button class="button" id="Online" onclick="window.location.reload()">Online</button>
+  </div>
+  <div class="players">
+    <p id="userContainer">You: <span id="user"></span></p>
+    <p id="oppContainer">Opponent: <span id="opponent"></span></p>
+  </div>
+  <p id="valueContainer">Playing as: <span id="value"></span></p>
+  <br />
+  <div>
+    <p id="enterName">Enter your name:</p>
+    <input type="text" placeholder="Name" id="name" autocomplete="off" />
+  </div>
+  <button id="find">Search for a player</button>
+  <div id="loading-cont">
+    <img src="/images/loading.gif" id="loading" alt="Searching..." />
+  </div>
+  <div class="board" id="board">
+    <div class="cell" id="0"></div>
+    <div class="cell" id="1"></div>
+    <div class="cell" id="2"></div>
+    <div class="cell" id="3"></div>
+    <div class="cell" id="4"></div>
+    <div class="cell" id="5"></div>
+    <div class="cell" id="6"></div>
+    <div class="cell" id="7"></div>
+    <div class="cell" id="8"></div>
+  </div>
+  <h2 id="whosTurn">Turn: <span id="turn"></span></h2>
+  <div class="info-box" id="info-box">
+    <div class="element" id="gameCountCont">
+      Games: <span id="gameCount">0</span>
     </div>
-    <div class="players">
-      <p id="userContainer">You: <span id="user"></span></p>
-      <p id="oppContainer">Opponent: <span id="opponent"></span></p>
+    <div class="element" id="XWinsCont">
+      X wins: <span id="XWins">0</span>
     </div>
-    <p id="valueContainer">Playing as: <span id="value"></span></p>
-    <br />
-    <div>
-      <p id="enterName">Enter your name:</p>
-      <input type="text" placeholder="Name" id="name" autocomplete="off" />
+    <div class="element" id="OWinsCont">
+      O wins: <span id="OWins">0</span>
     </div>
-    <button id="find">Search for a player</button>
-    <div id="loading-cont">
-      <img src="/images/loading.gif" id="loading" alt="Searching..." />
-    </div>
-    <div class="board" id="board">
-      <div class="cell" id="0"></div>
-      <div class="cell" id="1"></div>
-      <div class="cell" id="2"></div>
-      <div class="cell" id="3"></div>
-      <div class="cell" id="4"></div>
-      <div class="cell" id="5"></div>
-      <div class="cell" id="6"></div>
-      <div class="cell" id="7"></div>
-      <div class="cell" id="8"></div>
-    </div>
-    <h2 id="whosTurn">Turn: <span id="turn"></span></h2>
-    <div class="info-box" id="info-box">
-      <div class="element" id="gameCountCont">
-        Games: <span id="gameCount">0</span>
-      </div>
-      <div class="element" id="XWinsCont">
-        X wins: <span id="XWins">0</span>
-      </div>
-      <div class="element" id="OWinsCont">
-        O wins: <span id="OWins">0</span>
-      </div>
-      <div class="element" id="tiesCont">Ties: <span id="ties">0</span></div>
-    </div>
-    <style>
-      body {
-        background-color: #262626;
-        color: #ccc;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        text-align: center;
-      }
-      #title,
-      p {
-        margin: 10px 0;
-        font-size: 25px;
-        text-align: center;
-        color: #ccc;
-        font-size: 60px;
-      }
-      p {
-        font-size: 25px;
-      }
-      input[type="text"] {
-        padding: 10px;
-        margin: 10px 0;
-        border: 2px solid #ccc;
-        border-radius: 4px;
-        background-color: #1f1f1f;
-        color: #ccc;
-        font-size: 20px;
-      }
-      button {
-        padding: 10px 20px;
-        margin: 10px;
-        border: none;
-        border-radius: 8px;
-        background-color: #1f1f1f;
-        color: #ccc;
-        font-size: 16px;
-        cursor: pointer;
-        transition:
-          background-color 0.3s,
-          color 0.3s;
-      }
-      button:hover {
-        background-color: #ccc;
-        color: #1f1f1f;
-      }
-      #header {
-        text-align: center;
-        color: #ccc;
-        font-size: 35px;
-      }
-      #gamemode-selector {
-        justify-content: center;
-        text-align: center;
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
-      .button {
-        color: #ccc;
-        background-color: #1f1f1f;
-        font-size: 25px;
-        border-radius: 8px;
-        transition:
-          background-color 0.3s,
-          color 0.3s;
-      }
-      .button:hover {
-        background-color: #ccc;
-        color: #1f1f1f;
-      }
-      .board {
-        display: grid;
-        grid-template-columns: repeat(3, 100px);
-        grid-template-rows: repeat(3, 100px);
-        gap: 2px;
-        margin: 0 auto;
-        justify-content: center;
-        align-items: center;
-        padding-top: 20px;
-        padding-bottom: 20px;
-      }
-      .cell {
-        width: 100px;
-        height: 100px;
-        background-color: #1f1f1f;
-        border: 1px solid #ccc;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 40px;
-        cursor: pointer;
-        color: #ccc;
-        user-select: none;
-        transition: ease 0.3s;
-      }
-      .cell:hover {
-        background-color: #7e7e7e;
-        transition: ease 0.3s;
-      }
-      .cell:active {
-        background-color: #ccc;
-        transition: ease 0.3s;
-      }
-      .info-box {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        padding: 10px;
-        color: #ccc;
-        margin: 0 auto;
-        border: 3px solid #ccc;
-        border-width: 1px;
-        max-width: 300px;
-        font-size: 30px;
-      }
-      .info-box .element {
-        flex: 1;
-        margin-bottom: 5px;
-      }
-      #loading-cont {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      #loading {
-        width: 50px;
-        user-select: none;
-      }
-    </style>
-    <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
-    <script>
-      const socket = io();
+    <div class="element" id="tiesCont">Ties: <span id="ties">0</span></div>
+  </div>
+  <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
+  <script>
+    const socket = io();
 
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("board").style.display = "none";
+    document.getElementById("userContainer").style.display = "none";
+    document.getElementById("oppContainer").style.display = "none";
+    document.getElementById("valueContainer").style.display = "none";
+    document.getElementById("whosTurn").style.display = "none";
+    document.getElementById("info-box").style.display = "none";
+
+    let name;
+    let playerSymbol;
+    let turn = "X";
+    let gameEnded = false;
+
+    document.getElementById("find").addEventListener("click", function () {
+      name = document.getElementById("name").value;
+      document.getElementById("user").innerHTML = name;
+
+      if (name === null || name === "") {
+        alert("Please enter a name!");
+      } else {
+        socket.emit("find", name);
+        document.getElementById("loading").style.display = "block";
+      }
+    });
+
+    socket.on("playerFound", (data) => {
+      const opponent = data.opponent;
+      playerSymbol = data.player.value;
+      document.getElementById("userContainer").style.display = "block";
+      document.getElementById("oppContainer").style.display = "block";
+      document.getElementById("valueContainer").style.display = "block";
       document.getElementById("loading").style.display = "none";
-      document.getElementById("board").style.display = "none";
-      document.getElementById("userContainer").style.display = "none";
-      document.getElementById("oppContainer").style.display = "none";
-      document.getElementById("valueContainer").style.display = "none";
-      document.getElementById("whosTurn").style.display = "none";
-      document.getElementById("info-box").style.display = "none";
+      document.getElementById("name").style.display = "none";
+      document.getElementById("find").style.display = "none";
+      document.getElementById("enterName").style.display = "none";
+      document.getElementById("board").style.display = "grid";
+      document.getElementById("whosTurn").style.display = "block";
+      document.getElementById("info-box").style.display = "block";
+      document.getElementById("turn").innerText = "X";
+      document.getElementById("opponent").innerText = opponent;
+      document.getElementById("value").innerText = playerSymbol;
 
-      let name;
-      let playerSymbol;
-      let turn = "X";
-      let gameEnded = false;
-
-      document.getElementById("find").addEventListener("click", function () {
-        name = document.getElementById("name").value;
-        document.getElementById("user").innerHTML = name;
-
-        if (name === null || name === "") {
-          alert("Please enter a name!");
-        } else {
-          socket.emit("find", name);
-          document.getElementById("loading").style.display = "block";
-        }
-      });
-
-      socket.on("playerFound", (data) => {
-        const opponent = data.opponent;
-        playerSymbol = data.player.value;
-        document.getElementById("userContainer").style.display = "block";
-        document.getElementById("oppContainer").style.display = "block";
-        document.getElementById("valueContainer").style.display = "block";
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("name").style.display = "none";
-        document.getElementById("find").style.display = "none";
-        document.getElementById("enterName").style.display = "none";
-        document.getElementById("board").style.display = "grid";
-        document.getElementById("whosTurn").style.display = "block";
-        document.getElementById("info-box").style.display = "block";
-        document.getElementById("turn").innerText = "X";
-        document.getElementById("opponent").innerText = opponent;
-        document.getElementById("value").innerText = playerSymbol;
-
-        document.querySelectorAll(".cell").forEach((cell) => {
-          cell.addEventListener("click", function () {
-            const id = this.id;
-            console.log(
-              `Clicked cell with id "${id}" and playerSymbol "${playerSymbol}"`,
-            );
+      document.querySelectorAll(".cell").forEach((cell) => {
+        cell.addEventListener("click", function () {
+          const id = this.id;
+          if (!gameEnded && this.innerText === "") {
+            console.log(`Clicked cell with id "${id}" and playerSymbol "${playerSymbol}"`);
             console.log(`id: ${id}; name: ${name}`);
             socket.emit("playing", { value: playerSymbol, id: id, name: name });
-          });
+          }
         });
       });
+    });
 
-      socket.on("playing", (data) => {
-        console.log("Playing event data received:", data);
-        const foundObject = data.find(
-          (obj) => obj.p1.name === name || obj.p2.name === name,
-        ); //tva ne bachka, ot nego e problema
-        console.log(`foundObject: ${foundObject}`);
-        if (!foundObject) {
-          console.log("Object not found when attempting to make move.");
-          return;
-        }
-        const p1id = foundObject.p1.move;
-        const p2id = foundObject.p2.move;
+    socket.on("playing", (data) => {
+      console.log("Playing event data received:", data);
+      const foundObject = data.find((obj) => obj.p1.name === name || obj.p2.name === name);
 
-        document.getElementById("turn").innerText = foundObject.sum % 2 === 0 ? "O" : "X";
-
-        if (p1id) {
-          document.getElementById(p1id).innerText = "X";
-          document.getElementById(p1id).style.pointerEvents = "none";
-        }
-        if (p2id) {
-          document.getElementById(p2id).innerText = "O";
-          document.getElementById(p2id).style.pointerEvents = "none";
-        }
-        if (!gameEnded) {
-          endCheck(name, foundObject.sum);
-        }
-      });
-
-      function endCheck(name, sum) {
-        board = Array.from(
-          { length: 9 },
-          (_, i) => document.getElementById(i.toString()).innerText || "",
-        );
-        socket.emit("endCheck", { name, board, sum });
+      if (!foundObject) {
+        console.log("Object not found when attempting to make move.");
+        return;
       }
 
-      socket.on("gameOver", (data) => {
-        const { name, result, gameCount, XWinCount, OWinCount, tieCount } =
-          data;
-        if (result) {
-          let message;
-          if (result === "X" || result === "O") {
-            message = `Player ${name}, playing as ${result} has won the game.`;
-          } else if (result === "tie") {
-            message = `The game has resulted in a ${result}`;
-          } else message = "gameOver called with no result given.";
-          document.getElementById("gameCount").innerText = `${gameCount}`;
-          document.getElementById("XWins").innerText = `${XWinCount}`;
-          document.getElementById("OWins").innerText = `${OWinCount}`;
-          document.getElementById("ties").innerText = `${tieCount}`;
-          if (result !== null) {
-            gameEnded = true;
-            let temp = document.getElementById("whosTurn").innerText;
-            document.getElementById("whosTurn").innerText = message;
-            console.log(message);
-            let timeoutID = setTimeout(() => {
-              for (let i = 0; i < 9; i++) {
-                board[i] = "";
-              }
-              document.querySelectorAll(".cell").forEach((cell) => {
-                cell.innerText = "";
-                cell.style.pointerEvents = "auto";
-                document.getElementById("whosTurn").innerText = temp;
-              });
-              gameEnded = false;
-            }, 3000);
-          }
-        }
-      });
+      const p1id = foundObject.p1.move;
+      const p2id = foundObject.p2.move;
 
-      socket.on("resetGame", () => {
-        document.querySelectorAll(".cell").forEach((cell) => {
-          cell.innerText = "";
-          cell.style.pointerEvents = "auto";
-        });
-        //document.getElementById('turn').innerText = 'X';
-        gameEnded = false;
+      document.getElementById("turn").innerText = foundObject.sum % 2 === 0 ? "O" : "X";
+
+      if (p1id) {
+        document.getElementById(p1id).innerText = "X";
+        document.getElementById(p1id).style.pointerEvents = "none";
+      }
+      if (p2id) {
+        document.getElementById(p2id).innerText = "O";
+        document.getElementById(p2id).style.pointerEvents = "none";
+      }
+      if (!gameEnded) {
+        endCheck(name, foundObject.sum);
+      }
+    });
+
+    function endCheck(name, sum) {
+      const board = Array.from({ length: 9 }, (_, i) => document.getElementById(i.toString()).innerText || "");
+      socket.emit("endCheck", { name, board, sum });
+    }
+
+    socket.on("gameOver", (data) => {
+      const { name, result, gameCount, XWinCount, OWinCount, tieCount } = data;
+      if (result) {
+        let message;
+        if (result === "X" || result === "O") {
+          message = `Player ${name}, playing as ${result} has won the game.`;
+        } else if (result === "tie") {
+          message = `The game has resulted in a tie.`;
+        } else {
+          message = "Game over called with no result given.";
+        }
+        document.getElementById("gameCount").innerText = `${gameCount}`;
+        document.getElementById("XWins").innerText = `${XWinCount}`;
+        document.getElementById("OWins").innerText = `${OWinCount}`;
+        document.getElementById("ties").innerText = `${tieCount}`;
+        if (result !== null) {
+          gameEnded = true;
+          let temp = document.getElementById("whosTurn").innerText;
+          document.getElementById("whosTurn").innerText = message;
+          console.log(message);
+          setTimeout(() => {
+            for (let i = 0; i < 9; i++) {
+              document.getElementById(i.toString()).innerText = "";
+            }
+            document.querySelectorAll(".cell").forEach((cell) => {
+              cell.style.pointerEvents = "auto";
+            });
+            document.getElementById("whosTurn").innerText = temp;
+            gameEnded = false;
+          }, 3000);
+        }
+      }
+    });
+
+    socket.on("resetGame", () => {
+      document.querySelectorAll(".cell").forEach((cell) => {
+        cell.innerText = "";
+        cell.style.pointerEvents = "auto";
       });
-    </script>
-  </body>
+      gameEnded = false;
+    });
+  </script>
+</body>
 </html>
