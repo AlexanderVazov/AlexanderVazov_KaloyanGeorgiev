@@ -245,7 +245,8 @@
       const p1id = foundObject.p1.move;
       const p2id = foundObject.p2.move;
 
-      document.getElementById("turn").innerText = foundObject.sum % 2 === 0 ? "O" : "X";
+      turn = turn === "X" ? "O" : "X";
+      document.getElementById("turn").innerText = turn;
 
       if (p1id) {
         document.getElementById(p1id).innerText = "X";
@@ -294,6 +295,7 @@
             });
             document.getElementById("whosTurn").innerText = temp;
             gameEnded = false;
+            turn = "X";  // Reset turn to "X" on client side
           }, 3000);
         }
       }
@@ -305,7 +307,9 @@
         cell.style.pointerEvents = "auto";
       });
       gameEnded = false;
+      //turn = "X";  // Reset turn to "X" on client side
     });
   </script>
+
 </body>
 </html>

@@ -23,13 +23,14 @@ const winningCombinations = [
   [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
   [0, 4, 8], [2, 4, 6], // diagonals
 ];
-global.obj = {};  // Initialize global.obj to prevent reference errors
+global.obj = {}; 
 global.board = ["", "", "", "", "", "", "", "", ""];
-let turn = "X";  // Initialize turn to "X" at the start
+let turn = "X";
 
 function resetGame() {
   global.board.fill("");
   gameEnded = false;
+  //turn = "X";  // Reset turn to "X"
 }
 
 function endCheck(socket, name, sum) {
@@ -64,6 +65,7 @@ function endCheck(socket, name, sum) {
       OWinCount: OWinCount,
       tieCount: tieCount,
     });
+    resetGame();
   }
 }
 
@@ -92,7 +94,6 @@ io.on("connection", (socket) => {
         };
         playingArr.push(global.obj);
         arr = arr.filter((p) => p.id !== player1.id && p.id !== player2.id);
-        turn = "X";
         io.to(player1.id).emit("playerFound", {
           opponent: player2.name,
           player: global.obj.p1,
@@ -143,18 +144,19 @@ io.on("connection", (socket) => {
   socket.on("gameOver", (data) => {
     console.log(playingArr);
     const { name, result } = data;
-    if(result!==null){
+    if(result !== null){
       if (result !== "tie") {
         console.log(`${name} has won the game.`);
       } else if (result === "tie") {
         console.log(`The game has resulted in a ${result}`);
       }
 
-      resetGame();
+      resetGame();  // Ensure game state is reset at the end of a game
       playingArr = playingArr.map((obj) => {
         obj.p1.move = "";
         obj.p2.move = "";
         obj.sum = 1;
+        return obj;  // Ensure each object is returned after modification
       });
       io.emit("gameOver", {
         name: name,
