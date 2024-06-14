@@ -4,6 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tic Tac Toe</title>
+</head>
+<body>
+  <h1 id="title">Tic Tac Toe</h1>
+  <div id="gamemode-selector">
+    <a href="/"><button class="button" id="Local">Local</button></a>
+    <button class="button" id="Online" onclick="window.location.reload()">Online</button>
+  </div>
+  <div class="players">
+    <p id="userContainer">You: <span id="user"></span></p>
+    <p id="oppContainer">Opponent: <span id="opponent"></span></p>
+  </div>
+  <p id="valueContainer">Playing as: <span id="value"></span></p>
+  <br/>
+  <div>
+    <p id="enterName">Enter your name:</p>
+    <input type="text" placeholder="Name" id="name" autocomplete="off" />
+  </div>
+  <button id="find">Search for a player</button>
+  <div id="loading-cont">
+    <img src="/images/loading.gif" id="loading" alt="Searching..." />
+  </div>
+  <div class="board" id="board">
+    <div class="cell" id="0"></div>
+    <div class="cell" id="1"></div>
+    <div class="cell" id="2"></div>
+    <div class="cell" id="3"></div>
+    <div class="cell" id="4"></div>
+    <div class="cell" id="5"></div>
+    <div class="cell" id="6"></div>
+    <div class="cell" id="7"></div>
+    <div class="cell" id="8"></div>
+  </div>
+  <h2 id="whosTurn">Turn: <span id="turn"></span></h2>
+  <div class="info-box" id="info-box">
+    <div class="element" id="gameCountCont">
+      Games: <span id="gameCount">0</span>
+    </div>
+    <div class="element" id="XWinsCont">
+      X wins: <span id="XWins">0</span>
+    </div>
+    <div class="element" id="OWinsCont">
+      O wins: <span id="OWins">0</span>
+    </div>
+    <div class="element" id="tiesCont">Ties: <span id="ties">0</span></div>
+  </div>
   <style>
     body {
       background-color: #262626;
@@ -130,51 +175,6 @@
       user-select: none;
     }
   </style>
-</head>
-<body>
-  <h1 id="title">Tic Tac Toe</h1>
-  <div id="gamemode-selector">
-    <a href="/"><button class="button" id="Local">Local</button></a>
-    <button class="button" id="Online" onclick="window.location.reload()">Online</button>
-  </div>
-  <div class="players">
-    <p id="userContainer">You: <span id="user"></span></p>
-    <p id="oppContainer">Opponent: <span id="opponent"></span></p>
-  </div>
-  <p id="valueContainer">Playing as: <span id="value"></span></p>
-  <br />
-  <div>
-    <p id="enterName">Enter your name:</p>
-    <input type="text" placeholder="Name" id="name" autocomplete="off" />
-  </div>
-  <button id="find">Search for a player</button>
-  <div id="loading-cont">
-    <img src="/images/loading.gif" id="loading" alt="Searching..." />
-  </div>
-  <div class="board" id="board">
-    <div class="cell" id="0"></div>
-    <div class="cell" id="1"></div>
-    <div class="cell" id="2"></div>
-    <div class="cell" id="3"></div>
-    <div class="cell" id="4"></div>
-    <div class="cell" id="5"></div>
-    <div class="cell" id="6"></div>
-    <div class="cell" id="7"></div>
-    <div class="cell" id="8"></div>
-  </div>
-  <h2 id="whosTurn">Turn: <span id="turn"></span></h2>
-  <div class="info-box" id="info-box">
-    <div class="element" id="gameCountCont">
-      Games: <span id="gameCount">0</span>
-    </div>
-    <div class="element" id="XWinsCont">
-      X wins: <span id="XWins">0</span>
-    </div>
-    <div class="element" id="OWinsCont">
-      O wins: <span id="OWins">0</span>
-    </div>
-    <div class="element" id="tiesCont">Ties: <span id="ties">0</span></div>
-  </div>
   <script src="https://cdn.socket.io/4.2.0/socket.io.min.js"></script>
   <script>
     const socket = io();
